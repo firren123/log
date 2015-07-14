@@ -1,0 +1,13 @@
+{
+  "redis":{
+    "server":"127.0.0.1",
+    "port":6397,
+    "db":0,
+    "queue_key":"events"
+  },
+  "db":{
+    "server":"127.0.0.1",
+    "port":3306,
+    "db":"log"
+  }
+}
