@@ -31,7 +31,6 @@ class Consumer:
         start = 0
         len_events = self.redis.llen('events')
         if int(len_events) > 0:
-            # self.dbConnect()
             self.data = []
             while start < min(len,self.num):
                 _data = self.redis.rpop('events')
