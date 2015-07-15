@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
 __author__ = 'fanzhanao'
 
-import io,json,time
+import json,time
 import redis
 import pymysql.cursors
 
@@ -11,34 +12,43 @@ class Consumer:
     获取redis的数据，取出后做处理
     """
     def __init__(self):
-        config = json.load(open('../config/config.json'))
+        config = json.load(open(u'../config/config.json'))
         redisConf = config['redis']
         # print(redisConf)
         self.redis_server = redisConf['server']
         self.redis_port = int(redisConf['port'])
         self.redis_db = int(redisConf['db'])
         self.queue_key = redisConf['queue_key']
+        self.insert_sql = 'INSERT INTO logs (event,parameter,uid,deviceid,devicemodel,appid,appversion,os,osversion) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)'
         # 链接redis
         # self.redis = redis.Redis(host=self.redis_server,port=self.redis_port,db=int(self.redis_db))
         self.redis = redis.Redis(host='127.0.0.1',port=6379,db=0)
         self.db = None
+        self.num = 50
+        self.data = []
 
     def progress(self):
         start = 0
-        start_time = time.time()
-        # len = self.redis.llen('events')
-        while start < 1:
-            _data = self.redis.rpop('events')
-            events = self.parseData(_data)
-            if events:
-                self.saved(events)
-            start+=1
+        len_events = self.redis.llen('events')
+        if int(len_events) > 0:
+            # self.dbConnect()
+            self.data = []
+            while start < min(len,self.num):
+                _data = self.redis.rpop('events')
+                self.parseData(_data)
+                start+=1
 
+            if len(self.data) > 0 :
+                self.dbConnect()
+                self.saved()
+                self.dbClose()
+        else:
+            return
         # str = self.redis.rpop('events')
         # pp = pprint.PrettyPrinter(indent=4)
         # pp.pprint(str)
         # return str
-        print(time.time()-start_time)
+        # print(time.time()-start_time)
 
 
     def parseData(self,data):
@@ -46,37 +56,38 @@ class Consumer:
         分析数据
         :return:
         """
-        data = data.decode()
-        returnObjs = []
-        if isinstance(data,str):
-            data = json.loads(data)
-        if isinstance(data,type({})):
-            data = [data]
-        # print(str(data))
-        for dict in data:
-            # print(str(dict))
-            _row = tuple([dict['event']['name'],json.dumps(dict['event']['param']),dict['uid'],dict['deviceid'],dict['deviceModel'],dict['appid'],201,dict['os'],840])
-            returnObjs.append(_row)
-        return returnObjs
+        if data is None:
+            return None
+        try:
+            data = json.loads(data.decode())
+            if not isinstance(data,list):
+                data = [data]
+            for dict in data:
+                param = json.dumps(dict['event']['param'])
+                _row = (dict['event']['name'],param,str(dict['uid']),dict['deviceid'],dict['deviceModel'],str(dict['appid']),'201',dict['os'],'840')
+                self.data.append(_row)
+        except Exception as e:
+            print("error is %s" % e)
+            return None
+        # finally:
 
-    def saved(self, data = []):
+
+
+    def saved(self):
         """
         :return : bool
         """
         #连接数据库
-        self.dbConnect()
-        print("data is:%s" % str(data))
-        if data is None or data == '':
-            return
-        if isinstance(data,type({})):
-            self.singleSave(data)
-        elif isinstance(data,(tuple, list)):
+
+        if self.data is None or len(self.data) == 0:
+            return False
+        if isinstance(self.data,type({})):
+            self.singleSave()
+        elif isinstance(self.data,(tuple, list)):
             """
             批量更新数据
             """
-            self.mutilSave(data)
-        # 关闭数据库
-        self.dbClose()
+            self.mutilSave()
 
     def singleSave(self,row):
         """
@@ -88,22 +99,21 @@ class Consumer:
             return
         print (row)
 
-    def mutilSave(self,data):
+    def mutilSave(self):
         """
         批量插入数据
         :param data:
         :return:
         """
-        cursor = self.db.cursor()
+        # cursor = self.db.cursor()
         try:
-            sql = "INSERT INTO logs (event,parameter,uid,deviceid,devicemodel,appid,appversion,os,osversion) VALUES ('%s','%s',%d,'%s','%s','%s',%d,%d,'%s',%d)"
-            print('sql is:%s data is:%s' %  (sql,data))
-            cursor.executemany(sql,data)
-        except Exception as e:
-            print("执行Mysql: %s 时出错：%s" % (sql, e))
-        finally:
+            cursor = self.db.cursor()
+            cursor.executemany(self.insert_sql,self.data)
             cursor.close()
             self.db.commit()
+        except Exception as e:
+            print("执行Mysql: %s 时出错：%s data is:%s" % (self.insert_sql, e ,self.data))
+
 
     def dbConnect(self):
         """
@@ -121,8 +131,9 @@ class Consumer:
     def dbClose(self):
         if self.db is not None:
             self.db.close()
+            self.db = None
 
 
-if __name__ == "__main__":
-    consumer = Consumer()
-    consumer.progress()
+# if __name__ == "__main__":
+#     consumer = Consumer()
+#     consumer.progress()

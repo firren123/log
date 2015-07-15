@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 __author__ = 'fanzhanao'
 
-import sys,time
+import sys,time,os
+
 from daemon import Daemon
 from consumer import Consumer
 
@@ -11,7 +13,7 @@ class LogWorker(Daemon):
     def run(self):
         consumer = Consumer()
         while True:
-            consumer.read()
+            consumer.progress()
             # time.sleep(1)
 
 if __name__ == "__main__":
