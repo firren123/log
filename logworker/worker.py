@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 __author__ = 'fanzhanao'
 
-import sys,time,os
+import sys
 
-from daemon import Daemon
+if sys.version_info[0] == 2:
+    from daemon import Daemon
+else:
+    from daemon3 import Daemon
+
 from consumer import Consumer
 
 class LogWorker(Daemon):

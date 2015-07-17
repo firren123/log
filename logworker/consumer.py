@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 __author__ = 'fanzhanao'
 
-import json,time
+import json
 import redis
 import pymysql.cursors
-
 # from config.config import
 
 class Consumer:
@@ -13,15 +12,12 @@ class Consumer:
     """
     def __init__(self):
         config = json.load(open(u'../config/config.json'))
-        redisConf = config['redis']
-        # print(redisConf)
-        self.redis_server = redisConf['server']
-        self.redis_port = int(redisConf['port'])
-        self.redis_db = int(redisConf['db'])
-        self.queue_key = redisConf['queue_key']
+        self.redisConf = config['redis']
+        self.dbConf = config['db']
+        self.queue_key = self.redisConf['queue_key']
         self.insert_sql = 'INSERT INTO logs (event,parameter,uid,deviceid,devicemodel,appid,appversion,os,osversion) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)'
         # 链接redis
-        # self.redis = redis.Redis(host=self.redis_server,port=self.redis_port,db=int(self.redis_db))
+        # self.redis = redis.Redis(host=str(self.redisConf['server']),port=int(self.redisConf['port']),db=int(self.redisConf['db']))
         self.redis = redis.Redis(host='127.0.0.1',port=6379,db=0)
         self.db = None
         self.num = 50
@@ -43,11 +39,6 @@ class Consumer:
                 self.dbClose()
         else:
             return
-        # str = self.redis.rpop('events')
-        # pp = pprint.PrettyPrinter(indent=4)
-        # pp.pprint(str)
-        # return str
-        # print(time.time()-start_time)
 
 
     def parseData(self,data):
@@ -120,12 +111,18 @@ class Consumer:
         :return:
         """
         if self.db is None:
-            self.db = pymysql.connect(host='localhost',
-                             user='root',
-                             passwd='',
-                             db='logs',
-                             charset='utf8',
+            self.db = pymysql.connect(host= self.dbConf['server'],
+                             user= self.dbConf['user'],
+                             passwd= self.dbConf['password'],
+                             db= self.dbConf['db'],
+                             charset= self.dbConf['charset'],
                              cursorclass=pymysql.cursors.DictCursor)
+            # self.db = pymysql.connect(host= 'localhost',
+            #                  user='root',
+            #                  passwd='',
+            #                  db='logs',
+            #                  charset='utf8',
+            #                  cursorclass=pymysql.cursors.DictCursor)
 
     def dbClose(self):
         if self.db is not None:

@@ -7,7 +7,10 @@
   },
   "db":{
     "server":"127.0.0.1",
+    "user":"root",
+    "password":"",
     "port":3306,
-    "db":"log"
+    "db":"logs",
+    "charset":"utf8"
   }
 }
