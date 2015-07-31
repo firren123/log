@@ -1,16 +1,18 @@
 {
   "redis":{
-    "server":"127.0.0.1",
+    "host":"127.0.0.1",
     "port":6397,
     "db":0,
     "queue_key":"events"
   },
   "db":{
-    "server":"127.0.0.1",
+    "host":"127.0.0.1",
     "user":"root",
     "password":"",
     "port":3306,
-    "db":"logs",
+    "db":"statistics",
     "charset":"utf8"
-  }
+  },
+  "upload_path":"",
+  "extract_path":""
 }

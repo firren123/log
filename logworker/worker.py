@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'fanzhanao'
 
-import sys
+import sys,time
 
 if sys.version_info[0] == 2:
     from daemon import Daemon
