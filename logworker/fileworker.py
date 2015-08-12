@@ -1,26 +1,48 @@
 # -*- coding: utf-8 -*-
 __author__ = 'fanzhanao'
 
-import os,zipfile,glob,json
+import os,zipfile,glob,json,redis
 
 class ReadFile(object):
 	"""
 	读取指定目录的文件
 	"""
-	def __init__(self,path):
+	def __init__(self):
 		# zip 文件 path
-		self.workpath = path
 		# exract 目录
-		self.extractpath = path + r'/extracts'
-		print(self.extractpath)
+		self.extractpath = r''
 		self.zipfiles = []
 		self.files = []
+		self.redis = None
 		self.initSelf()
 
 	def initSelf(self):
 		self.getFileList()
+		if self.redis is None:
+			self.redis = redis.Redis(host='127.0.0.1',port=6379,db=0)
 		if not os.path.exists(self.extractpath):
 			os.mkdir(self.extractpath)
+
+	def progress(self):
+		file_len = self.redis.llen('zipfiles')
+		while file_len > 0:
+			f = self.redis.rpop('zipfiles')
+			if zipfile.is_zipfile(f):
+				nlist = []
+				with zipfile.ZipFile(f) as zf:
+					nlist = zf.extractall('.')
+				if nlist:
+					try:
+						os.remove(f)
+					except OSError:
+						pass
+
+					#pars file
+					for ff in nlist:
+						self.parseFile(ff)
+
+			file_len = file_len-1
+
 
 	def getFileList(self):
 		if os.path.exists(self.workpath):
@@ -45,15 +67,13 @@ class ReadFile(object):
 						print('error')
 						continue
 
-
-
-	def parseFile(self):
-		if len(self.files) > 0 :
-			for f in self.files:
-				print(f)
-				with open(f) as ff:
-					lines = ff.readlines()
-
+	def parseFile(self,f):
+		print(f)
+		try:
+			with open(f) as ff:
+				lines = ff.readlines()
+		except OSError:
+			pass
 
 #
 # if __name__ == "__main__":

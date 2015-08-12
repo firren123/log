@@ -53,8 +53,8 @@ class Consumer:
             if not isinstance(data,list):
                 data = [data]
             for dict in data:
-                param = json.dumps(dict['event']['param'])
-                _row = (dict['event']['name'],param,str(dict['uid']),dict['deviceid'],dict['devicemodel'],str(dict['appid']),dict['appversion'],dict['os'],dict['osversion'],time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(int(dict['timestamp']))))
+                param = json.dumps(dict['param'])
+                _row = (dict['event'],param,str(dict['uid']),dict['deviceid'],dict['devicemodel'],str(dict['appid']),dict['appversion'],dict['os'],dict['osversion'],time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(int(dict['timestamp']))))
                 self.data.append(_row)
         except Exception as e:
             print("error is %s" % e)
