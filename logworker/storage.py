@@ -15,7 +15,7 @@ class Storage(object):
 		self.charset = conf['charset'] if conf['charset'] else 'utf8'
 		self.db = None
 		# 插入SQL
-		self.insert_sql = 'INSERT INTO logs (event,parameter,uid,deviceid,devicemodel,appid,appversion,os,osversion) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+		self.insert_sql = 'INSERT INTO logs (event,parameter,uid,deviceid,devicemodel,appid,appversion,os,osversion,logtime) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
 
 	def dbConnect(self):
 		if self.db is None:

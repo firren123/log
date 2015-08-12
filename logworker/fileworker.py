@@ -45,6 +45,8 @@ class ReadFile(object):
 						print('error')
 						continue
 
+
+
 	def parseFile(self):
 		if len(self.files) > 0 :
 			for f in self.files:

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'fanzhanao'
 
-import json, multiprocessing
+import json,time, multiprocessing
 import redis
 import pymysql.cursors
 from storage import Storage
@@ -54,7 +54,7 @@ class Consumer:
                 data = [data]
             for dict in data:
                 param = json.dumps(dict['event']['param'])
-                _row = (dict['event']['name'],param,str(dict['uid']),dict['deviceid'],dict['deviceModel'],str(dict['appid']),dict['appversion'],dict['os'],dict['osversion'])
+                _row = (dict['event']['name'],param,str(dict['uid']),dict['deviceid'],dict['devicemodel'],str(dict['appid']),dict['appversion'],dict['os'],dict['osversion'],time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(int(dict['timestamp']))))
                 self.data.append(_row)
         except Exception as e:
             print("error is %s" % e)
