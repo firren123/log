@@ -44,10 +44,13 @@ class ReadFile(object):
 			file_len = file_len-1
 
 
-	def getFileList(self):
-		if os.path.exists(self.workpath):
-			for f in glob.glob(self.workpath+"/*.zip"):
-				self.zipfiles.append(f)
+	def read_zip_file(self,filepath):
+		zfile = zipfile.ZipFile(filepath)
+		for finfo in zfile.infolist():
+			ifile = zfile.open(finfo)
+			line_list = ifile.readlines()
+			print line_list
+
 
 	def unzipFile(self):
 		"""

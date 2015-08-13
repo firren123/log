@@ -17,7 +17,7 @@ class Consumer:
         self.queue_key = self.redisConf['queue_key']
         # 链接redis
         # self.redis = redis.Redis(host=str(self.redisConf['server']),port=int(self.redisConf['port']),db=int(self.redisConf['db']))
-        self.redis = redis.Redis(host='127.0.0.1',port=6379,db=0)
+        self.redis = redis.Redis(host='10.10.107.35',port=6379,db=0)
         # self.db = None
         self.storage = Storage(config['db'])
         self.num = 50
@@ -49,12 +49,13 @@ class Consumer:
         if data is None:
             return None
         try:
-            data = json.loads(data.decode())
-            if not isinstance(data,list):
-                data = [data]
-            for dict in data:
-                param = json.dumps(dict['param'])
-                _row = (dict['event'],param,str(dict['uid']),dict['deviceid'],dict['devicemodel'],str(dict['appid']),dict['appversion'],dict['os'],dict['osversion'],time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(int(dict['timestamp']))))
+            data = json.loads(data.decode('utf-8'),encoding="utf-8")
+            events = data['events']
+            if not isinstance(events,list):
+                events = [events]
+            for dict in events:
+                param = json.dumps(dict['param'],encoding="utf-8", ensure_ascii=False)
+                _row = (dict['event'],param,str(data['uid']),data['deviceid'],data['devicemodel'],str(data['appid']),data['appversion'],data['os'],data['osversion'],time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(int(dict['timestamp']))),data['appname'],data['appbuildversion'])
                 self.data.append(_row)
         except Exception as e:
             print("error is %s" % e)
