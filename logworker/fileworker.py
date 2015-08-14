@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 __author__ = 'fanzhanao'
 
-import os,zipfile,glob,json,redis
+import os,zipfile,glob,json,redis,time
+from storage import Storage
 
 class ReadFile(object):
 	"""
@@ -9,77 +10,52 @@ class ReadFile(object):
 	"""
 	def __init__(self):
 		# zip 文件 path
-		# exract 目录
-		self.extractpath = r''
-		self.zipfiles = []
-		self.files = []
-		self.redis = None
-		self.initSelf()
-
-	def initSelf(self):
-		self.getFileList()
-		if self.redis is None:
-			self.redis = redis.Redis(host='127.0.0.1',port=6379,db=0)
-		if not os.path.exists(self.extractpath):
-			os.mkdir(self.extractpath)
+		config = json.load(open(u'../config/config.json'))
+		self.redisConf = config['redis']
+		self.data = []
+		self.lines = []
+		self.redis = redis.Redis(host='10.10.107.35',port=6379,db=0)
+		self.storage = Storage(config['db'])
+		# self.initSelf()
 
 	def progress(self):
-		file_len = self.redis.llen('zipfiles')
-		while file_len > 0:
-			f = self.redis.rpop('zipfiles')
-			if zipfile.is_zipfile(f):
-				nlist = []
-				with zipfile.ZipFile(f) as zf:
-					nlist = zf.extractall('.')
-				if nlist:
-					try:
-						os.remove(f)
-					except OSError:
-						pass
+		f = self.redis.rpop('zipfiles')
+		if zipfile.is_zipfile(f):
+			self.read_zip_file(f)
+			if len(self.lines) > 0:
+				try:
+					# 分析每行数据
+					pubData = json.loads(self.lines.pop(0).decode('utf-8'),encoding="utf-8")
+					for evt  in self.lines:
+						evt = json.loads(evt.decode('utf-8'),encoding='utf-8')
+						param = json.dumps(evt['param'],encoding="utf-8", ensure_ascii=False)
+						_row = (evt['event'],param,str(pubData['uid']),pubData['deviceid'],pubData['devicemodel'],str(pubData['appid']),pubData['appversion'],pubData['os'],pubData['osversion'],time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(int(evt['timestamp']))),pubData['appname'],pubData['appbuildversion'])
+						self.data.append(_row)
 
-					#pars file
-					for ff in nlist:
-						self.parseFile(ff)
+					if len(self.data) > 0 :
+						self.storage.dbConnect()
+						self.saved()
+						self.storage.dbClose()
+					os.remove(f)
+				except OSError:
+					pass
 
-			file_len = file_len-1
+	def saved(self):
+		if self.data is None or len(self.data) == 0:
+			return False
+		try:
+			self.storage.save(self.data)
+		except Exception as e:
+			print("执行Mysql: 时出错：%s data is:%s" % ( e ,self.data))
 
 
 	def read_zip_file(self,filepath):
 		zfile = zipfile.ZipFile(filepath)
 		for finfo in zfile.infolist():
 			ifile = zfile.open(finfo)
-			line_list = ifile.readlines()
-			print line_list
-
-
-	def unzipFile(self):
-		"""
-		:desc 解压缩文件
-		:param zipfile:
-		:return: file
-		"""
-		if len(self.zipfiles) > 0:
-			for f in self.zipfiles:
-				if zipfile.is_zipfile(f):
-					try:
-						zfile = zipfile.ZipFile(f)
-						zfile.extractall(self.extractpath)
-						(filePath,ext) = os.path.splitext(self.extractpath +"/" + os.path.basename(f))
-						self.files.append(filePath)
-					except:
-						print('error')
-						continue
-
-	def parseFile(self,f):
-		print(f)
-		try:
-			with open(f) as ff:
-				lines = ff.readlines()
-		except OSError:
-			pass
+			self.lines = ifile.readlines()
 
 #
-# if __name__ == "__main__":
-# 	f = ReadFile(r'/Users/fanzhanao/Work/python/data')
-# 	f.unzipFile()
-# 	f.parseFile()
+if __name__ == "__main__":
+	f = ReadFile()
+	f.progress()
