@@ -17,7 +17,7 @@ class Consumer:
         self.queue_key = self.redisConf['queue_key']
         # 链接redis
         # self.redis = redis.Redis(host=str(self.redisConf['server']),port=int(self.redisConf['port']),db=int(self.redisConf['db']))
-        self.redis = redis.Redis(host='127.0.0.1',port=6379,db=0)
+        self.redis = redis.Redis(host='10.10.107.35',port=6379,db=0)
         # self.db = None
         self.storage = Storage(config['db'])
         self.num = 50

@@ -20,7 +20,7 @@ class FileConsumer(object):
 
 	def progress(self):
 		f = self.redis.rpop('zipfiles')
-		if zipfile.is_zipfile(f):
+		if f and zipfile.is_zipfile(f):
 			self.read_zip_file(f)
 			if len(self.lines) > 0:
 				try:
