@@ -1,15 +1,14 @@
 {
   "redis":{
-    "host":"127.0.0.1",
+    "host":"10.10.107.35",
     "port":6397,
     "db":0,
-    "queue_key":"events",
-    "zip_files":""
+    "queue_key":"events"
   },
   "db":{
-    "host":"127.0.0.1",
+    "host":"10.10.97.155",
     "user":"root",
-    "password":"",
+    "password":"nf95KNYjnDRyt656",
     "port":3306,
     "db":"statistics",
     "charset":"utf8"
