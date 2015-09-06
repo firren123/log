@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'fanzhanao'
 
-import json,time, multiprocessing
+import json,time, multiprocessing,logging
 import redis
 import pymysql.cursors
 from storage import Storage
@@ -12,14 +12,15 @@ class Consumer:
     获取redis的数据，取出后做处理
     """
     def __init__(self):
-        config = json.load(open(u'../config/config.json'))
-        self.redisConf = config['redis']
+        self.config = json.load(open(u'../config/config.json'))
+        self.redisConf = self.config['redis']
         self.queue_key = self.redisConf['queue_key']
         # 链接redis
         # self.redis = redis.Redis(host=str(self.redisConf['server']),port=int(self.redisConf['port']),db=int(self.redisConf['db']))
         self.redis = redis.Redis(host='10.10.107.35',port=6379,db=0)
+        logging.basicConfig(filename = self.config['error_log'], level = logging.DEBUG)
         # self.db = None
-        self.storage = Storage(config['db'])
+        self.storage = Storage(self.config['db'])
         self.num = 50
         self.data = []
 
@@ -41,15 +42,15 @@ class Consumer:
             return
 
 
-    def parseData(self,data):
+    def parseData(self,dataStr):
         """
         分析数据
         :return:
         """
-        if data is None:
+        if dataStr is None:
             return None
         try:
-            data = json.loads(data.decode('utf-8'),encoding="utf-8")
+            data = json.loads(dataStr.decode('utf-8'),encoding="utf-8")
             events = data['events']
             if not isinstance(events,list):
                 events = [events]
@@ -58,7 +59,7 @@ class Consumer:
                 _row = (dict['event'],param,str(data['uid']),data['deviceid'],data['devicemodel'],str(data['appid']),data['appversion'],data['os'],data['osversion'],time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(int(dict['timestamp']))),data['appname'],data['appbuildversion'])
                 self.data.append(_row)
         except Exception as e:
-            print("error is %s" % e)
+            logging.error("convert data to json object error! --data is :" + dataStr + "; \nerror is " + str(e)  + ";\n\n")
             return None
         # finally:
 

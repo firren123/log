@@ -15,5 +15,6 @@
     "charset":"utf8"
   },
   "upload_path":"",
-  "extract_path":""
+  "extract_path":"",
+  "error_log":"/MM/LOG/statistics/error.log"
 }
