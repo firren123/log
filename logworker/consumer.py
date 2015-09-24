@@ -56,7 +56,7 @@ class Consumer:
                 events = [events]
             for dict in events:
                 param = json.dumps(dict['param'],encoding="utf-8", ensure_ascii=False)
-                _row = (dict['event'],param,str(data['uid']),data['deviceid'],data['devicemodel'],str(data['appid']),data['appversion'],data['os'],data['osversion'],time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(int(dict['timestamp']))),data['appname'],data['appbuildversion'])
+                _row = (dict['event'],param,str(data['uid']),data['deviceid'],data['devicemodel'],str(data['appid']),data['appversion'],data['os'],data['osversion'],time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(int(dict['timestamp']))),data['appname'],data['appbuildversion'],(data['notificationsettings'] if 'notificationsettings' in data else '7'))
                 self.data.append(_row)
         except Exception as e:
             logging.error("convert data to json object error! --data is :" + dataStr + "; \nerror is " + str(e)  + ";\n===============================================================\n")
