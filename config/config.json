@@ -1,19 +1,19 @@
 {
   "redis":{
-    "host":"10.10.107.35",
+    "host":"127.0.0.1",
     "port":6397,
     "db":0,
-    "queue_key":"events"
+    "queue_key":"log"
   },
   "db":{
-    "host":"10.10.97.155",
+    "host":"vhost01",
     "user":"root",
-    "password":"nf95KNYjnDRyt656",
-    "port":3306,
-    "db":"statistics",
+    "password":"modernmedia",
+    "port":3308,
+    "db":"logs",
     "charset":"utf8"
   },
   "upload_path":"",
   "extract_path":"",
-  "error_log":"/MM/LOG/statistics/error.log"
+  "error_log":"/data/www/logworker/logworker/test/error.log"
 }

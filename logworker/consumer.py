@@ -17,7 +17,7 @@ class Consumer:
         self.queue_key = self.redisConf['queue_key']
         # 链接redis
         # self.redis = redis.Redis(host=str(self.redisConf['server']),port=int(self.redisConf['port']),db=int(self.redisConf['db']))
-        self.redis = redis.Redis(host='10.10.107.35',port=6379,db=0)
+        self.redis = redis.Redis(host='127.0.0.1',port=6379,db=0)
         logging.basicConfig(filename = self.config['error_log'], level = logging.DEBUG)
         # self.db = None
         self.storage = Storage(self.config['db'])
@@ -25,12 +25,14 @@ class Consumer:
         self.data = []
 
     def progress(self):
+        print("执行Mysql: dddddd")
+        #import pdb; pdb.set_trace()
         start = 0
-        len_events = self.redis.llen('events')
+        len_events = self.redis.llen('log')
         if int(len_events) > 0:
             self.data = []
             while start < min(len_events,self.num):
-                _data = self.redis.rpop('events')
+                _data = self.redis.rpop('log')
                 self.parseData(_data)
                 start+=1
 
@@ -47,6 +49,10 @@ class Consumer:
         分析数据
         :return:
         """
+
+        from urllib import unquote
+        test = unquote(dataStr)
+        dataStr = test
         if dataStr is None:
             return None
         try:
@@ -56,7 +62,8 @@ class Consumer:
                 events = [events]
             for dict in events:
                 param = json.dumps(dict['param'],encoding="utf-8", ensure_ascii=False)
-                _row = (dict['event'],param,str(data['uid']),data['deviceid'],data['devicemodel'],str(data['appid']),data['appversion'],data['os'],data['osversion'],time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(int(dict['timestamp']))),data['appname'],data['appbuildversion'],(data['notificationsettings'] if 'notificationsettings' in data else '7'))
+                _row = (dict['event'],param,str(data['uid']),data['deviceid'],data['devicemodel'],str(data['appid']),data['appversion'],data['os'],data['osversion'],time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(int(dict['timestamp']))),data['appname'],data['appbuildversion'])
+                #_row = (str(data['event']),param,str(data['uid']),data['deviceid'],data['deviceModel'])
                 self.data.append(_row)
         except Exception as e:
             logging.error("convert data to json object error! --data is :" + dataStr + "; \nerror is " + str(e)  + ";\n===============================================================\n")
@@ -75,6 +82,7 @@ class Consumer:
             return False
         if isinstance(self.data,type({})):
             self.singleSave()
+            print("执行Mysql: 时出错：%s data is:%s" % ( e ,self.data))
         elif isinstance(self.data,(tuple, list)):
             """
             批量更新数据

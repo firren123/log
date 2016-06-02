@@ -20,7 +20,15 @@ class FileLogWorker(Daemon):
             consumer.progress()
             # time.sleep(1)
 
+def test():
+    consumer = FileConsumer()
+    while True:
+        consumer.progress()
+        # time.sleep(1)
+
 if __name__ == "__main__":
+    test()
+    exit(0)
     worker = FileLogWorker('/tmp/filelogworker.pid')
     if len(sys.argv) == 2:
         if 'start' == sys.argv[1]:

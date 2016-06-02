@@ -14,17 +14,19 @@ class FileConsumer(object):
 		self.redisConf = config['redis']
 		self.data = []
 		self.lines = []
-		self.redis = redis.Redis(host='10.10.107.35',port=6379,db=0)
+		self.redis = redis.Redis(host='127.0.0.1',port=6379,db=0)
 		self.storage = Storage(config['db'])
 		# self.initSelf()
 
 	def progress(self):
-		f = self.redis.rpop('zipfiles')
+
+		f = self.redis.rpop('logfile')
 		if f and zipfile.is_zipfile(f):
 			self.read_zip_file(f)
 			if len(self.lines) > 0:
 				try:
 					# 分析每行数据
+					#import pdb; pdb.set_trace()
 					pubData = json.loads(self.lines.pop(0).decode('utf-8'),encoding="utf-8")
 					for evt  in self.lines:
 						evt = json.loads(evt.decode('utf-8'),encoding='utf-8')
