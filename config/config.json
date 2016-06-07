@@ -10,7 +10,7 @@
     "user":"root",
     "password":"modernmedia",
     "port":3306,
-    "db":"log",
+    "db":"logs",
     "charset":"utf8"
   },
   "upload_path":"",

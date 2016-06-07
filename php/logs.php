@@ -17,7 +17,7 @@ if($_POST){
 class LogsUpload
 {
 //    public $filepath = '/MM/HTML/Source/avatar/';
-    public $filepath = '/tmp/test/';
+    public $filepath = '/data/logfile/';
 
     public $redis_conf = [
         'host'=>'127.0.0.1',
