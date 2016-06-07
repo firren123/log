@@ -25,7 +25,6 @@ class Consumer:
         self.data = []
 
     def progress(self):
-        print("执行Mysql: dddddd")
         #import pdb; pdb.set_trace()
         start = 0
         len_events = self.redis.llen('log')

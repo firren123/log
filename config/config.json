@@ -6,14 +6,14 @@
     "queue_key":"log"
   },
   "db":{
-    "host":"vhost01",
+    "host":"127.0.0.1",
     "user":"root",
     "password":"modernmedia",
     "port":3308,
-    "db":"logs",
+    "db":"log",
     "charset":"utf8"
   },
   "upload_path":"",
   "extract_path":"",
-  "error_log":"/data/www/logworker/logworker/test/error.log"
+  "error_log":"/data/html/logworker/logworker/test/error.log"
 }
