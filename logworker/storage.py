@@ -35,7 +35,6 @@ class Storage(object):
 			self.db = None
 
 	def save(self,data):
-		import pdb; pdb.set_trace()
 		#data = [(u'click', u'{"cat_id": 102, "art_id": 2210}', 1000, u'xxxxxxxxx', u'iPhone 5', 1, u'2.8.2', u'IOS8.3', u'8.4', '1974-04-11 07:33:22', u'\u5546\u4e1a\u5468\u520a', 1873, '7')]
 		cursor = self.db.cursor()
 		cursor.executemany(self.insert_sql,data)
@@ -45,7 +44,6 @@ class Storage(object):
 
 	def save_bak(self,data):
 		try:
-			import pdb; pdb.set_trace()
 			data = [(u'click', u'{"cat_id": 102, "art_id": 2210}', '1000', u'xxxxxxxxx', u'iPhone 5', '1', u'2.8.2', u'IOS8.3', u'8.4', '1974-04-11 07:33:22', u'\u5546\u4e1a\u5468\u520a', '1873', '7')]
 			cursor = self.db.cursor()
 			cursor.executemany(self.insert_sql,data)

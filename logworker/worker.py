@@ -1,4 +1,6 @@
+#!/bin/python
 # -*- coding: utf-8 -*-
+
 __author__ = 'fanzhanao'
 
 import sys,time
@@ -17,7 +19,6 @@ class LogWorker(Daemon):
     """
     def run(self):
         import pdb; pdb.set_trace()
-        print ("ddddddddd")
         consumer = Consumer()
         while True:
             consumer.progress()
@@ -30,10 +31,9 @@ def test():
         # time.sleep(1)
 
 if __name__ == "__main__":
-    print ("aaaa")
     a = test()
     exit(0)
-    worker = LogWorker('/data/www/logworker/logworker/test/logworker.pid')
+    worker = LogWorker('/data/html/logworker/logworker/test/logworker.pid')
     print ("aavvvvvaa")
     if len(sys.argv) == 2:
         print ("bbbbb")
