@@ -9,7 +9,6 @@
 
 $log  = new LogsUpload();
 if($_POST){
-    echo 33;
     $log->upload();
 }elseif($_GET['test'] == 1){
     $log->test();
@@ -33,7 +32,7 @@ class LogsUpload
             }
             else
             {
-                echo $path = $this->filepath .time(). $_FILES["file"]["name"];
+                $path = $this->filepath .time(). $_FILES["file"]["name"];
                 move_uploaded_file($_FILES["file"]["tmp_name"], $path);
                 //写进redis中
                 $redis = new Redis();
