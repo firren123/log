@@ -9,7 +9,7 @@
     "host":"127.0.0.1",
     "user":"root",
     "password":"modernmedia",
-    "port":3308,
+    "port":3306,
     "db":"log",
     "charset":"utf8"
   },
