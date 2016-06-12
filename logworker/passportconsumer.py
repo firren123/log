@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__author__ = 'fanzhanao'
+__author__ = 'lichenjun'
 
 import json,time, multiprocessing,logging
 import redis
@@ -14,7 +14,8 @@ class Consumer:
     def __init__(self):
         self.config = json.load(open(u'../config/config.json'))
         self.redisConf = self.config['redis']
-        self.queue_key = self.redisConf['queue_key']
+        #self.queue_key = self.redisConf['queue_key']
+        self.queue_key = 'passport'
         # 链接redis
         # self.redis = redis.Redis(host=str(self.redisConf['server']),port=int(self.redisConf['port']),db=int(self.redisConf['db']))
         self.redis = redis.Redis(host='127.0.0.1',port=6379,db=0)
