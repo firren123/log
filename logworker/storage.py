@@ -19,6 +19,7 @@ class Storage(object):
 		#self.insert_sql = 'INSERT INTO logs (event,parameter,uid,deviceid,devicemodel) VALUES (%s,%s,%s,%s,%s)'
 		print(self.insert_sql)
 
+
 	def dbConnect(self):
 		if self.db is None:
 			self.db = pymysql.connect(host= self.host,
