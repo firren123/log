@@ -6,7 +6,7 @@
     "queue_key":"log"
   },
   "db":{
-    "host":"127.0.0.1",
+    "host":"vhost01",
     "user":"root",
     "password":"modernmedia",
     "port":3306,
@@ -14,11 +14,11 @@
     "charset":"utf8"
   },
   "passportdb":{
-    "host":"127.0.0.1",
+    "host":"vhost01",
     "user":"root",
     "password":"modernmedia",
-    "port":3306,
-    "db":"logs",
+    "port":3308,
+    "db":"passport",
     "charset":"utf8"
   },
   "upload_path":"",

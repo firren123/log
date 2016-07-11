@@ -1,24 +1,26 @@
 {
   "redis":{
-    "host":"127.0.0.1",
-    "port":6397,
+    "host":"192.168.33.10",
+    "port":6379,
     "db":0,
     "queue_key":"log"
   },
   "db":{
-    "host":"127.0.0.1",
+    "host":"vhost01",
     "user":"root",
     "password":"modernmedia",
-    "port":3306,
+    "port":3308,
+    "dbname":"logs",
     "db":"logs",
     "charset":"utf8"
   },
   "passportdb":{
-    "host":"127.0.0.1",
+    "host":"vhost01",
     "user":"root",
     "password":"modernmedia",
-    "port":3306,
-    "db":"logs",
+    "port":3308,
+    "dbname":"passport",
+    "db":"passport",
     "charset":"utf8"
   },
   "upload_path":"",

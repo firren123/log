@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 __author__ = 'fanzhanao'
-
 import sys,time
 
 if sys.version_info[0] == 2:
@@ -18,7 +17,7 @@ class LogWorker(Daemon):
     守护进程处理数据
     """
     def run(self):
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         consumer = Consumer()
         while True:
             consumer.progress()
@@ -34,7 +33,6 @@ if __name__ == "__main__":
     a = test()
     exit(0)
     worker = LogWorker('/data/html/logworker/logworker/test/logworker.pid')
-    print ("aavvvvvaa")
     if len(sys.argv) == 2:
         print ("bbbbb")
         if 'start' == sys.argv[1]:
