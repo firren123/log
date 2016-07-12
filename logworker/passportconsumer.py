@@ -16,7 +16,7 @@ class Consumer:
         self.queue_key = self.config['passport_queue_key']
         # 链接redis
         # self.redis = redis.Redis(host=str(self.redisConf['server']),port=int(self.redisConf['port']),db=int(self.redisConf['db']))
-        self.redis = redis.Redis(self.redisConf.host,self.redisConf.port,self.redisConf.db)
+        self.redis = redis.Redis(self.redisConf['host'],self.redisConf['port'],self.redisConf['db'])
         logging.basicConfig(filename = self.config['error_log'], level = logging.DEBUG)
         self.db = None
         self.storage = self.config['passportdb']
