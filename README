@@ -1,1 +1,153 @@
 logworker
+
+基于redis + python+nginx的一个队列工具，能够承担大量数据的并发操作
+
+部署流程
+
+配置Nginx+lua+redis
+
+* 版本
+
+    1. ☐nginx 1.9.2
+    2. ☐lua 5.1 最好是 LuaJIT-2.0.4
+    3. ☐redis 3.0.2
+    4. ☐python >=2.7.3 and <=2.7.10
+    5. ☐mysql >=5.1 and <=5.6
+
+* 安装LuaJit
+
+    1. wget -c http://luajit.org/download/LuaJIT-2.0.4.tar.gz
+    2. tar zxvf LuaJIT-2.0.4.tar.gz
+    3. cd LuaJIT-2.0.4 && make && make install
+
+* 安装Lua (mac)[linux]
+    * wget -c http://www.lua.org/ftp/lua-5.3.1.tar.gz
+    * tar zxvf lua-5.3.1.tar.gz && cd lua-5.3.1
+    * sudo make macosx [linux]
+    * make install
+
+* 下载Nginx
+
+    1. wget -c http://nginx.org/download/nginx-1.9.2.tar.gz
+    2. tar zxvf nginx-1.9.2.tar.gz && cd nginx-1.9.2
+
+* 下载依赖库
+
+    1. git clone https://github.com/simpl/ngx_devel_kit.git
+    2. git clone https://github.com/chaoslawful/lua-nginx-module.git
+    3. git clone https://github.com/agentzh/redis2-nginx-module.git
+    4. git clone https://github.com/agentzh/set-misc-nginx-module.git
+    5. git clone https://github.com/agentzh/echo-nginx-module.git
+    6. git clone https://github.com/agentzh/lua-redis-parser.git
+    7. cd lua-redis-parser
+        export LUA_INCLUDE_DIR=/usr/local/include/luajit-2.0
+         make CC=gcc && sudo make install CC=gcc
+    8. wget http://www.kyne.com.au/~mark/software/download/lua-cjson-2.0.0.tar.gz
+        tar zxvf lua-cjson-2.0.0.tar.gz && cd lua-cjson-2.0.0 
+        1. 需要修改Makefile文件
+        2. #LUA_INCLUDE_DIR = $(PREFIX)/include
+            LUA_INCLUDE_DIR = $(PREFIX)/include/luajit-2.0/
+            #LUA_CMODULE_DIR = $(PREFIX)/lib/lua/$(LUA_VERSION)
+            LUA_CMODULE_DIR = $(PREFIX)/lib
+            #LUA_MODULE_DIR = $(PREFIX)/share/lua/$(LUA_VERSION)
+            LUA_MODULE_DIR = $(PREFIX)/share/lua/luajit-2.0.3
+    9.  make  && sudo make install
+
+* 编译nginx
+
+    1. cd /opt/ && wget https://www.openssl.org/source/openssl-1.0.1t.tar.gz && tar zxvf openssl-1.0.1t.tar.gz
+    2. ./configure --prefix=/usr/local/nginx  --with-threads \
+        --with-http_addition_module \
+        --add-module=./ngx_devel_kit/ \
+        --add-module=./lua-nginx-module \
+        --add-module=./redis2-nginx-module \
+        --add-module=./set-misc-nginx-module \
+        --add-module=./echo-nginx-module \
+        --with-http_flv_module \
+        --with-http_gzip_static_module  \
+        --with-http_ssl_module \
+        --with-mail_ssl_module \
+        --with-stream_ssl_module \
+        --with-openssl=/opt/openssl-1.0.1t \
+        --with-pcre \
+        --with-sha1=/usr/include/openssl \
+        --with-md5=/usr/include/openssl \
+        --user=www --group=www
+    3. ---with-http_image_filter_module(不需要图片处理 不安装了)-
+    4. make && sudo make install
+    5. 如果启动失败，执行
+        ln -s /usr/local/lib/libluajit-5.1.so.2 /lib64/libluajit-5.1.so.2
+
+* mysql安装
+    * 自行下载mysql
+    * tar zxvf mysql-5.6.29-linux-glibc2.5-x86_64.tar.gz
+    * mv mysql-5.6.29-linux-glibc2.5-x86_64 /usr/local/
+    * ln -s /usr/local/mysql-5.6.29-linux-glibc2.5-x86_64 /usr/local/mysql
+    * mkdir /data/mysql && chown -R mysql.mysql /data/mysql/*
+    * cd /usr/local/mysql
+    * ./scripts/mysql_install_db —datadir=/data/mysql/ --user=mysql —basedir=/usr/local/mysql
+    * cp support-files/mysql.server /etc/init.d/
+    * vi /etc/ini.d/mysql.server  注释掉第256行
+    * 256 parse_server_arguments `$print_defaults $extra_args mysqld server mysql_server mysql.server`
+    * /etc/ini.d/mysql.server start
+    * mysql -uroot 
+    * >set password=password(“XXXXXXXX”)
+    * >flush privileges
+* php安装
+
+    * cd /opt
+    * wget  http://tr2.php.net/distributions/php-5.6.22.tar.gz
+    * tar zxvf php-5.6.22.tar.gz && cd php-5.6.22
+    * ./configure \
+        --prefix=/usr/local/php-5.6.22 \
+        --enable-fpm \
+        --with-fpm-user=www \
+        --with-fpm-group=www \
+        --with-iconv \
+        --with-mysql=/usr/local/mysql \
+        --enable-mbstring \
+        --with-curl \
+        --with-zlib \
+        --enable-pcntl \
+        --enable-sysvsem \
+        --enable-sysvshm \
+        --with-jpeg-dir \
+        --with-png-dir \
+        --with-freetype-dir \
+        --with-gd \
+        --enable-gd-native-ttf
+    * make && make install
+    * ln -s /usr/local/php-5.6.22  /usr/local/php
+    * 
+
+* 安装Python2.7.3
+    * wget http://python.org/ftp/python/2.7.3/Python-2.7.3.tar.bz2
+    * tar -jxvf Python-2.7.3.tar.bz2 && cd Python-2.7.3 
+    * ./configure && make all && make install
+    * mv /usr/bin/python /usr/bin/python2.6
+    * ln -s /usr/local/bin/python2.7 /usr/bin/python
+
+* 扩展包
+
+    1. 安装pip
+        curl -O https://bootstrap.pypa.io/get-pip.py && python get-pip.py
+    2. 安装redis 扩展
+        pip install redis
+    3. 安装 mysql扩展
+        pip install pymysql
+
+* 安装Redis
+
+    1. curl -O http://download.redis.io/releases/redis-3.0.2.tar.gz
+    2. tar zxvf redis-3.0.2.tar.gz && cd redis-3.0.2
+    3. make && make install    # 所有可执行程序都安装在了/usr/local/bin目录
+
+* 运行程序
+
+    1. 下载python代码
+        git clone https://github.com/doudou2012/logworker.git
+    2. 运行 (https://github.com/doudou2012/logworker.git)服务器
+        cd logworker/logworker
+        启动服务 python worker.py start
+        停止服务 python worker.py stop
+
